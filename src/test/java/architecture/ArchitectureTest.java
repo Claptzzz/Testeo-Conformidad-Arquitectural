@@ -1,86 +1,108 @@
 package architecture;
 
+
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchRule;
-import com.tngtech.archunit.library.Architectures;
 import dao.ConnectionManager;
 import org.junit.jupiter.api.Test;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
+import service.UserService;
+import ui.LoginController;
 import ui.UserView;
-
-import static com.tngtech.archunit.library.Architectures.layeredArchitecture;
 
 
 public class ArchitectureTest {
 
+    private static JavaClasses classes = new ClassFileImporter().importPackages("");
 
     @Test
     void uiAccedeSoloServicio() {
-        ArchRuleDefinition.noClasses()
+        ArchRule rule = ArchRuleDefinition.noClasses()
                 .that().resideInAPackage("..ui..")
-                .should().accessClassesThat().resideInAPackage("..dao..");
+                .should().accessClassesThat().resideInAPackage("..dao..")
+                .allowEmptyShould(true);
+
+        rule.check(classes);
     //ninguna clase que resida en ui debe tener acceso a una de dao
     }
 
     @Test
     void uiNoAccedeAui() {
-        ArchRuleDefinition.noClasses()
+        ArchRule rule = ArchRuleDefinition.noClasses()
                 .that().resideInAPackage("..ui..")
-                .should().accessClassesThat().resideInAPackage("..ui..");
+                .should().accessClassesThat().resideInAPackage("..ui..")
+                .allowEmptyShould(true);
+
+        rule.check(classes);
     //ui no accede a ui, so this is for la misma capa
     }
 
     @Test
     void serviciosAccedeSoloDao() {
-        ArchRuleDefinition.noClasses()
+        ArchRule rule = ArchRuleDefinition.noClasses()
                 .that().resideInAPackage("..service..")
-                .should().accessClassesThat().resideInAPackage("..ui..");
+                .should().accessClassesThat().resideInAPackage("..ui..")
+                .allowEmptyShould(true);
+
+        rule.check(classes);
         //service no accede a ui
     }
 
     @Test
     void serviceNoAccedeAservice() {
-        ArchRuleDefinition.noClasses()
+        ArchRule rule = ArchRuleDefinition.noClasses()
                 .that().resideInAPackage("..service..")
-                .should().accessClassesThat().resideInAPackage("..service..");
+                .should().accessClassesThat().resideInAPackage("..service..")
+                .allowEmptyShould(true);
+
+        rule.check(classes);
         //service no accede a service
     }
 
     @Test
     void daoNoAccedeANada() {
-        ArchRuleDefinition.noClasses()
+        ArchRule rule = ArchRuleDefinition.noClasses()
                 .that().resideInAPackage("..dao..")
-                .should().accessClassesThat().resideOutsideOfPackages("..dao..");
+                .should().accessClassesThat().resideOutsideOfPackages("..dao..")
+                .allowEmptyShould(true);
+
+        rule.check(classes);
         //dao no accede a nada
     }
 
     @Test
     void daoNoAccedeAdao() {
-        ArchRuleDefinition.noClasses()
+        ArchRule rule = ArchRuleDefinition.noClasses()
                 .that().resideInAPackage("..dao..")
-                .should().accessClassesThat().resideInAPackage("..dao..");
+                .should().accessClassesThat().resideInAPackage("..dao..")
+                .allowEmptyShould(true);
+
+        rule.check(classes);
         //no sé si esta debe ir ya que se ve que dao no accede a nada, pero no se si eso incluye que no pueda acceder a si mismo so lo pongo igual
     }
 
     //especificossss
-/*
+
     @Test
-    void userServiceNoAccedeALoginController() {
-        ArchRuleDefinition.noClasses()
-                .that().
-                .that().resideInClass("..service.UserService")
-                .should().accessClassesThat().resideInClass("..ui.LoginController");
+    void userServiceNoLoginController() {
+        ArchRule rule = ArchRuleDefinition.noClasses()
+                .that().areAssignableTo(UserService.class)
+                .should().accessClassesThat().areAssignableTo(LoginController.class)
+                .allowEmptyShould(true);
 
-    }*/
+        rule.check(new ClassFileImporter().importPackages(""));
+        //userService no puede acceder a loginController
+    }
 
-
-    //2) UserView accediendo a ConnectionManager.
-/*
     @Test
-    void userViewShouldNotAccessDatabase() {
-        UserView view = new UserView();
-        assertFalse(view instanceof ConnectionManager); // Valida independencia
-    } */
+    void UserViewNoConnectionManager() {
+        ArchRule rule = ArchRuleDefinition.noClasses()
+                .that().areAssignableTo(UserView.class)
+                .should().accessClassesThat().areAssignableTo(ConnectionManager.class)
+                .allowEmptyShould(true);
 
+        rule.check(new ClassFileImporter().importPackages(""));
+        //userView no puede acceder a connectionManager
+    }
 }
