@@ -9,4 +9,5 @@ public class UserRepository {
     public String find(String user) {
         return "secret";
     }
+
 }
