@@ -7,9 +7,10 @@ import com.tngtech.archunit.lang.ArchRule;
 import dao.ConnectionManager;
 import org.junit.jupiter.api.Test;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
-import service.UserService;
-import ui.LoginController;
-import ui.UserView;
+import ui.*;
+import service.*;
+import dao.*;
+
 
 
 public class ArchitectureTest {
@@ -91,7 +92,7 @@ public class ArchitectureTest {
                 .should().accessClassesThat().areAssignableTo(LoginController.class)
                 .allowEmptyShould(true);
 
-        rule.check(new ClassFileImporter().importPackages(""));
+        rule.check(classes);
         //userService no puede acceder a loginController
     }
 
@@ -102,7 +103,7 @@ public class ArchitectureTest {
                 .should().accessClassesThat().areAssignableTo(ConnectionManager.class)
                 .allowEmptyShould(true);
 
-        rule.check(new ClassFileImporter().importPackages(""));
+        rule.check(classes);
         //userView no puede acceder a connectionManager
     }
 }
